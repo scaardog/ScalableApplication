@@ -10,5 +10,6 @@
 
     <modules>
         <module>usersideapi</module>
+        <module>externalservice</module>
     </modules>
 </project>
