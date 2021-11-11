@@ -18,7 +18,7 @@ public class MessageProcessorController {
 
     public MessageProcessorController() {
         this.bucket = Bucket4j.builder()
-                .addLimit(Bandwidth.classic(2, Refill.intervally(10, Duration.ofSeconds(10))))
+                .addLimit(Bandwidth.classic(1000, Refill.intervally(1000, Duration.ofSeconds(10))))
                 .build();
     }
 
