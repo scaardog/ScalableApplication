@@ -29,7 +29,7 @@ public class MessageProcessorController {
                 .build();
     }
 
-    @GetMapping("/doSomething")
+    @GetMapping("/do-something")
     public ResponseEntity<String> doSomething(@RequestParam("message") String message) {
         if (bucket.tryConsume(1)) {
             try {
