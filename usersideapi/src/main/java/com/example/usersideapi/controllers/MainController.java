@@ -1,6 +1,6 @@
 package com.example.usersideapi.controllers;
 
-import com.example.usersideapi.services.ExternalServiceAdapter;
+import com.example.usersideapi.services.QueueService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -9,14 +9,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class MainController {
 
-    private final ExternalServiceAdapter externalServiceAdapter;
+    private final QueueService queueService;
 
-    public MainController(ExternalServiceAdapter externalServiceAdapter) {
-        this.externalServiceAdapter = externalServiceAdapter;
+    public MainController(QueueService queueService) {
+        this.queueService = queueService;
     }
 
     @GetMapping("/reverse")
     public ResponseEntity<String> reverse(@RequestParam("message") String message) {
-        return ResponseEntity.ok(externalServiceAdapter.doSomething(message));
+        queueService.send(message);
+        return ResponseEntity.ok("Message: " + message + "has been sent");
     }
 }
