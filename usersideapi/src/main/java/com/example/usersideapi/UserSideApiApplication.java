@@ -3,9 +3,16 @@ package com.example.usersideapi;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.map.IMap;
+import io.github.bucket4j.Bucket;
+import io.github.bucket4j.Bucket4j;
+import io.github.bucket4j.grid.GridBucketState;
+import io.github.bucket4j.grid.ProxyManager;
+import io.github.bucket4j.grid.hazelcast.Hazelcast;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
+import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -25,8 +32,6 @@ public class UserSideApiApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(UserSideApiApplication.class, args);
-        System.setProperty("javax.net.ssl.trustStore", "src\\main\\resources\\scalableTrustStore");
-        System.setProperty("javax.net.ssl.trustStorePassword", "123456");
     }
 
     @Bean
@@ -41,18 +46,20 @@ public class UserSideApiApplication {
     public RestTemplate externalServiceRestTemplate(RestTemplateBuilder restTemplateBuilder,
                                                     @Value("${externalservice.url}") String remoteUrl,
                                                     @Value("${trustStore}") Resource keyStore,
-                                                    @Value("${trustStorePassword}") String keyStorePassword)
-            throws Exception{
+                                                    @Value("${trustStorePassword}") String keyStorePassword) throws Exception{
 
         SSLContext sslContext = new SSLContextBuilder()
                 .loadTrustMaterial(
                         keyStore.getURL(),
                         keyStorePassword.toCharArray()
                 ).build();
+
         SSLConnectionSocketFactory socketFactory =
                 new SSLConnectionSocketFactory(sslContext);
+
         HttpClient httpClient = HttpClients.custom()
                 .setSSLSocketFactory(socketFactory).build();
+
         HttpComponentsClientHttpRequestFactory factory =
                 new HttpComponentsClientHttpRequestFactory(httpClient);
 
@@ -60,5 +67,21 @@ public class UserSideApiApplication {
                 .rootUri(remoteUrl)
                 .requestFactory(() -> factory)
                 .build();
+    }
+
+    @Bean
+    public IMap<String, GridBucketState> cache(HazelcastInstance hazelcastInstance) {
+        return hazelcastInstance.getMap("bucket");
+    }
+
+    @Bean
+    public Bucket bucket(IMap<String, GridBucketState> cache) {
+        String bucketId = "globalBucket";
+        ProxyManager<String> proxyManager = Bucket4j.extension(Hazelcast.class).proxyManagerForMap(cache);
+        if (proxyManager.getProxy(bucketId).isPresent()) {
+            return proxyManager.getProxy(bucketId).get();
+        } else {
+            throw new BeanInitializationException("Cannot create bucket instance");
+        }
     }
 }

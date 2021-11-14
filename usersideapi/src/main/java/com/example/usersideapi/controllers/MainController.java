@@ -2,6 +2,7 @@ package com.example.usersideapi.controllers;
 
 import com.example.usersideapi.services.QueueService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +19,11 @@ public class MainController {
     @GetMapping("/reverse")
     public ResponseEntity<String> reverse(@RequestParam("message") String message) {
         queueService.send(message);
-        return ResponseEntity.ok("Message: " + message + "has been sent");
+        return ResponseEntity.ok("Message: " + message + " has been sent");
+    }
+
+    @ExceptionHandler
+    private ResponseEntity<String> handleException() {
+        return ResponseEntity.internalServerError().body("Произошла ошибка при отправке запроса");
     }
 }
