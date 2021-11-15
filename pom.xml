@@ -17,7 +17,6 @@
 
     <modules>
         <module>usersideapi</module>
-        <module>externalservice</module>
         <module>cache</module>
     </modules>
     <dependencies>
