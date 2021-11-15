@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,7 +19,7 @@ import java.time.Duration;
 @RestController
 public class MessageProcessorController {
     private final Bucket bucket;
-    private static final String fileName = "D:\\Repositories\\ScalableApplication\\externalservice\\src\\main\\resources\\DoSomething.txt";
+    private static final String fileName = ".\\DoSomething.txt";
 
     public MessageProcessorController() {
         this.bucket = Bucket4j.builder()
@@ -44,6 +42,7 @@ public class MessageProcessorController {
             return ResponseEntity.ok("Сообщение получено");
         }
 
-        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body("Превышен лимит запросов");
     }
 }

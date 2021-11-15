@@ -6,7 +6,6 @@ import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;
 import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
-import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -45,18 +44,19 @@ public class QueueService {
             item = queue.take();
             ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
             if (probe.isConsumed()) {
-                System.out.println("Consumed: " + item);
                 externalServiceAdapter.doSomething(item);
                 service.execute(this::listen);
+                System.out.println("Consumed: " + item);
             } else {
-                System.out.println("Resend: " + item);
                 queue.put(item);
                 service.schedule(this::listen, probe.getNanosToWaitForRefill(), TimeUnit.NANOSECONDS);
+                System.out.println("Resend: " + item);
             }
         } catch (InterruptedException ie) {
-            System.out.println("The listener has been interrupted");
+            System.out.println("The listener has been interrupted. Restarting...");
+            service.execute(this::listen);
         } catch (Exception e) {
-            System.out.println("Error occurred: " + item + "Stacktrace: \n" + Arrays.toString(e.getStackTrace()));
+            System.out.println("Error occurred: " + item + " Stacktrace: \n" + e.getClass().getName());
             throw e;
         }
     }

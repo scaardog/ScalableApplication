@@ -16,7 +16,7 @@ public class MainController {
         this.queueService = queueService;
     }
 
-    @GetMapping("/reverse")
+    @GetMapping("/send-message")
     public ResponseEntity<String> reverse(@RequestParam("message") String message) {
         queueService.send(message);
         return ResponseEntity.ok("Message: " + message + " has been sent");
