@@ -10,7 +10,7 @@
     <artifactId>usersideapi</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>usersideapi</name>
-    <description>Demo project for Spring Boot</description>
+    <description>Scalable application with global rate-limiting and asynchronous message processing</description>
     <properties>
         <java.version>11</java.version>
     </properties>

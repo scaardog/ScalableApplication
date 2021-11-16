@@ -36,9 +36,9 @@ public class UserSideApiApplication {
 
     @Bean
     @Primary
-    public HazelcastInstance hazelcastInstance() {
+    public HazelcastInstance hazelcastInstance(@Value("${hazelcast.cluster-name}") String clusterName) {
         ClientConfig config = new ClientConfig();
-        config.setClusterName("bucketCache");
+        config.setClusterName(clusterName);
         return HazelcastClient.newHazelcastClient(config);
     }
 
@@ -75,8 +75,7 @@ public class UserSideApiApplication {
     }
 
     @Bean
-    public Bucket bucket(IMap<String, GridBucketState> cache) {
-        String bucketId = "globalBucket";
+    public Bucket bucket(IMap<String, GridBucketState> cache, @Value("${hazelcast.bucket-id}") String bucketId) {
         ProxyManager<String> proxyManager = Bucket4j.extension(Hazelcast.class).proxyManagerForMap(cache);
         if (proxyManager.getProxy(bucketId).isPresent()) {
             return proxyManager.getProxy(bucketId).get();
