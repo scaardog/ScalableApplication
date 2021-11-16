@@ -23,7 +23,7 @@ public class MainController {
     }
 
     @ExceptionHandler
-    private ResponseEntity<String> handleException() {
-        return ResponseEntity.internalServerError().body("Произошла ошибка при отправке запроса");
+    private ResponseEntity<String> handleException(Exception e) {
+        return ResponseEntity.internalServerError().body("Произошла ошибка при отправке запроса: " + e.getMessage());
     }
 }

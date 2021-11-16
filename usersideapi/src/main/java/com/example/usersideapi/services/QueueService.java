@@ -44,13 +44,17 @@ public class QueueService {
             item = queue.take();
             ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
             if (probe.isConsumed()) {
-                externalServiceAdapter.doSomething(item);
+                try {
+                    externalServiceAdapter.doSomething(item);
+                    System.out.println("Consumed: " + item);
+                } catch (Exception e) {
+                    queue.put(item);
+                }
                 executorService.execute(this::listen);
-                System.out.println("Consumed: " + item);
             } else {
+                System.out.println("Resend: " + item);
                 queue.put(item);
                 executorService.schedule(this::listen, probe.getNanosToWaitForRefill(), TimeUnit.NANOSECONDS);
-                System.out.println("Resend: " + item);
             }
         } catch (Exception e) {
             System.out.println("Error occurred: " + item);
