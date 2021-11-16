@@ -17,11 +17,10 @@ public class QueueService {
     private final IQueue<String> queue;
     private final ScheduledExecutorService service;
 
-    public QueueService(HazelcastInstance hazelcastInstance, ExternalServiceAdapter externalServiceAdapter,
-                        Bucket bucket) {
+    public QueueService(ExternalServiceAdapter externalServiceAdapter, Bucket bucket, IQueue<String> queue) {
         this.externalServiceAdapter = externalServiceAdapter;
         this.bucket = bucket;
-        this.queue = hazelcastInstance.getQueue("queue");
+        this.queue = queue;
         this.service = Executors.newScheduledThreadPool(1);
     }
 

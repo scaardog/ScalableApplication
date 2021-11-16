@@ -2,6 +2,7 @@ package com.example.usersideapi;
 
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
+import com.hazelcast.collection.IQueue;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
 import io.github.bucket4j.Bucket;
@@ -72,6 +73,11 @@ public class UserSideApiApplication {
     @Bean
     public IMap<String, GridBucketState> cache(HazelcastInstance hazelcastInstance) {
         return hazelcastInstance.getMap("bucket");
+    }
+
+    @Bean
+    public IQueue<String> queue(HazelcastInstance hazelcastInstance) {
+        return hazelcastInstance.getQueue("queue");
     }
 
     @Bean
