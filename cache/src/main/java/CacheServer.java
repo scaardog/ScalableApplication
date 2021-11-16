@@ -15,6 +15,6 @@ public class CacheServer {
         config.setClusterName("bucketCache");
         Bucket4j.extension(io.github.bucket4j.grid.hazelcast.Hazelcast.class).builder()
                 .addLimit(Bandwidth.classic(100, Refill.intervally(100, Duration.ofSeconds(1))))
-                .build(Hazelcast.newHazelcastInstance(config).getMap("bucket"), bucketId, RecoveryStrategy.RECONSTRUCT);
+                .build(Hazelcast.newHazelcastInstance(config).getMap("bucketMap"), bucketId, RecoveryStrategy.RECONSTRUCT);
     }
 }

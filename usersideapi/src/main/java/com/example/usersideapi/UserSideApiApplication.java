@@ -27,20 +27,14 @@ import org.springframework.web.client.RestTemplate;
 import org.apache.http.client.HttpClient;
 
 import javax.net.ssl.SSLContext;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 public class UserSideApiApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(UserSideApiApplication.class, args);
-    }
-
-    @Bean
-    @Primary
-    public HazelcastInstance hazelcastInstance(@Value("${hazelcast.cluster-name}") String clusterName) {
-        ClientConfig config = new ClientConfig();
-        config.setClusterName(clusterName);
-        return HazelcastClient.newHazelcastClient(config);
     }
 
     @Bean
@@ -71,13 +65,27 @@ public class UserSideApiApplication {
     }
 
     @Bean
-    public IMap<String, GridBucketState> cache(HazelcastInstance hazelcastInstance) {
-        return hazelcastInstance.getMap("bucket");
+    @Primary
+    public HazelcastInstance hazelcastInstance(@Value("${hazelcast.cluster-name}") String clusterName) {
+        ClientConfig config = new ClientConfig();
+        config.setClusterName(clusterName);
+        return HazelcastClient.newHazelcastClient(config);
     }
 
     @Bean
-    public IQueue<String> queue(HazelcastInstance hazelcastInstance) {
-        return hazelcastInstance.getQueue("queue");
+    public IMap<String, GridBucketState> cache(HazelcastInstance hazelcastInstance,
+                                               @Value("${hazelcast.bucket-map}") String bucketMapName) {
+        return hazelcastInstance.getMap(bucketMapName);
+    }
+
+    @Bean
+    public IQueue<String> queue(HazelcastInstance hazelcastInstance, @Value("${hazelcast.queue}") String queueName) {
+        return hazelcastInstance.getQueue(queueName);
+    }
+
+    @Bean
+    public ScheduledExecutorService executorService(@Value("${executorservice.poolsize}") int poolSize) {
+        return Executors.newScheduledThreadPool(poolSize);
     }
 
     @Bean
