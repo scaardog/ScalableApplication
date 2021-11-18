@@ -19,7 +19,7 @@ class QueueServiceTest {
 
     ConsumptionProbe probe = mock(ConsumptionProbe.class);
 
-    QueueService queueService = new QueueService(externalServiceAdapter, bucket, queue, executorService);
+    QueueService queueService = new QueueService(externalServiceAdapter, bucket, queue, executorService, 1);
 
     @Test
     void sendTest() throws InterruptedException {

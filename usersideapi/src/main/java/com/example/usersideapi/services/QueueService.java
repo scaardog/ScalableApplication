@@ -3,6 +3,7 @@ package com.example.usersideapi.services;
 import com.hazelcast.collection.IQueue;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -15,18 +16,22 @@ public class QueueService {
     private final Bucket bucket;
     private final IQueue<String> queue;
     private final ScheduledExecutorService executorService;
+    private final int poolSize;
 
     public QueueService(ExternalOutbound externalServiceAdapter, Bucket bucket, IQueue<String> queue,
-                        ScheduledExecutorService executorService) {
+                        ScheduledExecutorService executorService, @Value("${executorservice.poolsize}") int poolSize) {
         this.externalServiceAdapter = externalServiceAdapter;
         this.bucket = bucket;
         this.queue = queue;
         this.executorService = executorService;
+        this.poolSize = poolSize;
     }
 
     @PostConstruct
     private void initListener() {
-        executorService.execute(this::listen);
+        for (int i = 0; i < poolSize; i++) {
+            executorService.execute(this::listen);
+        }
     }
 
     public void send(String item) {
